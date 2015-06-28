@@ -7,43 +7,68 @@
 //
 
 #import "GameScene.h"
+@interface GameScene()
+
+@property NSUInteger familyIdx;
+
+@end
 
 @implementation GameScene
 
--(void)didMoveToView:(SKView *)view {
-    /* Setup your scene here */
-    SKLabelNode *myLabel = [SKLabelNode labelNodeWithFontNamed:@"Chalkduster"];
-    
-    myLabel.text = @"Hello, World!";
-    myLabel.fontSize = 65;
-    myLabel.position = CGPointMake(CGRectGetMidX(self.frame),
-                                   CGRectGetMidY(self.frame));
-    
-    [self addChild:myLabel];
-}
-
--(void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
-    /* Called when a touch begins */
-    
-    for (UITouch *touch in touches) {
-        CGPoint location = [touch locationInNode:self];
+- (instancetype)initWithCoder:(NSCoder *)aDecoder {
+    self = [super initWithCoder:aDecoder];
+    if (self) {
         
-        SKSpriteNode *sprite = [SKSpriteNode spriteNodeWithImageNamed:@"Spaceship"];
-        
-        sprite.xScale = 0.5;
-        sprite.yScale = 0.5;
-        sprite.position = location;
-        
-        SKAction *action = [SKAction rotateByAngle:M_PI duration:1];
-        
-        [sprite runAction:[SKAction repeatActionForever:action]];
-        
-        [self addChild:sprite];
     }
+    
+    return self;
 }
 
--(void)update:(CFTimeInterval)currentTime {
-    /* Called before each frame is rendered */
+- (instancetype)initWithSize:(CGSize)size {
+    self = [super initWithSize:size];
+    
+    if (self) {
+        [self showCurrentFamily];
+    }
+    
+    return self;
 }
+
+- (void)showCurrentFamily {
+    // Todo
+    [self removeAllChildren];
+    
+    // Get a familyname from familyNames array
+    NSString *familyName = [UIFont familyNames][self.familyIdx];
+    NSLog(@"%@", familyName);
+    
+    NSArray *fontNames = [UIFont fontNamesForFamilyName:familyName];
+    
+    // Enumerate througha fontNames array, create multiple label nodes and add them
+    
+    [fontNames enumerateObjectsUsingBlock:^(NSString *fontName, NSUInteger idx, BOOL *stop) {
+        SKLabelNode *label = [[SKLabelNode alloc] initWithFontNamed:fontName];
+        // Configure label
+        label.text = fontName;
+        label.position = CGPointMake(self.size.width / 2,
+                                     (self.size.height - (((CGFloat)idx + 1) * 50)));
+        label.fontSize = 25;
+        label.verticalAlignmentMode = SKLabelVerticalAlignmentModeCenter;
+        [self addChild:label];
+        
+    }];
+    
+}
+
+- (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event {
+    self.familyIdx++;
+    
+    if (self.familyIdx >= [UIFont familyNames].count) {
+        self.familyIdx = 0;
+    }
+    [self showCurrentFamily];
+}
+
+
 
 @end
